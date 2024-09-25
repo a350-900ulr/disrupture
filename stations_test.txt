@@ -1,0 +1,4 @@
+line 10: Hietzing, Schloss Schoenbrunn, Penzinger Strasse, Johnstrasse Linzer Strasse, Linszer Strasse Reinlgasse, Penzing
+line 60: Hietzing, Schloss Schoenbrunn, Penzinger Strasse, Winckelmannstrasse, Rudolfsheim Anschuetzgasse, Rustsengasse, Mariahilfer Strasse Geibelgasse, Staglgasse, Westbahnhof Gerstnerstrasse, Westbahnhof
+line 52: Linszer Strasse Reinlgasse, Johnstrasse Linzer Strasse, Penzinger Strasse, Winckelmannstrasse, Rudolfsheim Anschuetzgasse, Rustsengasse, Mariahilfer Strasse Geibelgasse, Staglgasse, Westbahnhof
+
