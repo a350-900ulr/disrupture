@@ -1,9 +1,10 @@
-
-import networkx
+import networkx as nx
 from os import listdir
-from os.path import isfile, join
+from re import match
 
-class TransitGraph(networkx.Graph):
+
+class TransitGraph(nx.Graph):
+	# between stations
 	travel_times = {
 		'tram': 2,
 		'trolley': 2,
@@ -11,69 +12,64 @@ class TransitGraph(networkx.Graph):
 		'commuter': 2
 	}
 	
-	def load_default_graph(self, line_folder: str = 'lines'):
-
-		files = listdir(line_folder)
-		
-		###########################
-		
-		for file in files:
-			with open(file, 'r') as file:
-				for line in file:
-					line_name, stations = line.strip().split(':', 1)
-					
-					station_list = [station.strip() for station in stations.split(',')]
-					stations_dict[line_name.strip()] = station_list
-			
 	
-	def add_lines(self, line_name: str, stations: list[str], custom_type: str = None):
+	def load_default_graph(self, line_folder: str = 'lines'):
 		
+		for file_name in listdir(line_folder):
+			line_name = file_name.split('.')[0]
+			stations = []
+
+			with open(f'{line_folder}/{file_name}', 'r') as file:
+				for line in file:
+					stations.append(line.strip())
+			self.add_lines(line_name, stations)
+		
+	def add_lines(self, line_name: str, stations: list[str], custom_type: str = None):
 		if custom_type is None:
-			match line_name[0]:
-				case 'U':
-					transit_time = self.travel_times['metro']
-				case 'S':
-					transit_time = self.travel_times['commuter']
-				case _ if line_name.isdigit():
-					transit_time = self.travel_times['tram']
-				case _:
-					raise ValueError(f'Could not automatically determine type of {line_name}')
+			line_type = self.detect_line_type(line_name)
 		else:
-			transit_time = self.travel_times[custom_type]
-
+			line_type = custom_type
+	
 		for index, station in enumerate(stations[:-1]):
-
+			# TODO: if line already exist, append line to list of lines
+			# also always make it a list
 			self.add_edge(
 				station,
 				stations[index + 1],
 				line=line_name,
-				weight=transit_time
+				type=line_type,
+				travel_time=self.travel_times[line_type]
 			)
 	
-	def fastest_path(self, source, target):
-		path = networkx.shortest_path(self, source=source, target=target, weight='weight')
-		print(path)
-		# total_time = 0
-		# prev_line = None
-		#
-		# for i in range(len(path) - 1):
-		# 	edge_data = self.get_edge_data(path[i], path[i + 1])
-		# 	travel_time = edge_data['weight']
-		#
-		# 	current_line = edge_data['line']
-		# 	if prev_line != current_line:
-		# 		if current_line == 'U4' or current_line == 'U6':
-		# 			travel_time += 3
-		# 		elif current_line == 'S50':
-		# 			travel_time += 10
-		#
-		# 	total_time += travel_time
-		# 	prev_line = current_line
-		#
-		# return path, total_time
+	def detect_line_type(self, line_name: str) -> str:
+		if match('^\d{1,2}$', line_name):
+			line_type = 'tram'
+		elif match('^U\d$', line_name):
+			line_type = 'metro'
+		elif match('^S\d{1,2}$', line_name):
+			line_type = 'commuter'
+		elif line_name == 'Stammstrecke':  # manually added for testing, to be split later
+			line_type = 'commuter'
+		else:
+			raise ValueError(f'Could not automatically determine type of {line_name}')
+		return line_type
 
+	def fastest_path(self, source, target, paths_before_transfers: int = 1):
+		# find top k paths
+		path_generator = nx.shortest_simple_paths(self, source, target, weight='travel_time')
+		top_paths = []
+		for index, path in enumerate(path_generator):
+			if index >= paths_before_transfers:
+				break
+			top_paths.append(path)
+		
+		# add transfer weights
+		
+		# take top (mark if its ever different?)
+
+	
 
 net = TransitGraph()
 net.load_default_graph()
-
-arr = listdir('lines')
+net.fastest_path('Schönbrunn', 'Stephansplatz')
+#arr = listdir('lines')
