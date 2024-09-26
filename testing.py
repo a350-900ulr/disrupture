@@ -1,4 +1,4 @@
-# scratchpad file
+# scratchpad file to test random things. There is no order or structure here
 
 import networkx as nx
 from TransitGraph import TransitGraph as tg
@@ -209,3 +209,24 @@ print(minimize_changes(input_list))
 from TransitGraph import TransitGraph as tg
 net = tg()
 print(net.segment_wait_time({'S2', 'S8'}))
+
+
+
+
+
+
+
+def bep():
+	print('hello')
+	return [1, 2, 4, 5, 5]
+
+for num in bep():
+	print(num)
+
+
+
+
+from TransitGraph import TransitGraph as TG
+net = TG()
+net.load_default_graph()
+path, lines, time = net.fastest_path('Meidling', 'Friedensbrücke', print_results=True, verbose=True)

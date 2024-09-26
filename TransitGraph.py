@@ -23,6 +23,10 @@ class TransitGraph(nx.Graph):
 		'commuter': 30,
 	}
 	
+	def __init__(self):
+		super().__init__()
+		self.load_default_graph()
+	
 	def load_default_graph(self, line_folder: str = 'lines'):
 		
 		for file_name in listdir(line_folder):
@@ -89,29 +93,29 @@ class TransitGraph(nx.Graph):
 		else:
 			raise ValueError(f'Could not automatically determine type of {line_name}')
 		return line_type
-	
 
 	def fastest_path(self,
 		source,
 		target,
 		paths_before_transfers: int = 6,
-		print_results: bool = False):
+		print_results: bool = False,
+		verbose: bool = False
+	):
 		"""
 		Finds the fastest path between a source & target station.
-		:param source:
-		:param target:
-		:param paths_before_transfers:
-		:return:
+
 		"""
 		
 		path_generator = nx.shortest_simple_paths(self, source, target, weight='travel_time')
 		
 		# get a certain amount of journeys using only travel_time weights
 		top_paths: list[list[str]] = []
+
 		for index, path in enumerate(path_generator):
 			if index >= paths_before_transfers:
 				break
 			top_paths.append(path)
+			
 		
 		# calculate transit times & get list of possible lines throughout the route
 		total_times = []
@@ -141,19 +145,19 @@ class TransitGraph(nx.Graph):
 		
 		fastest_index = total_times.index(min(total_times))
 		
-		if print_results:
-			print(
-				f'\nLines used: {lines_in_paths[fastest_index]}'
-				f'\nCalculated travel time: {total_times[fastest_index]}'
-				f'\nStations: {top_paths[fastest_index]}'
-			)
-		
+
 		return \
-			top_paths[fastest_index], \
 			lines_in_paths[fastest_index], \
-			total_times[fastest_index]
+			total_times[fastest_index], \
+			top_paths[fastest_index]
 			
-	
+	def print_fastest_path(self, source: str, target: str, paths_before_transfers: int = 6):
+		lines, time, stations = self.fastest_path(source, target, paths_before_transfers)
+		print(
+			f'\nLines used: {lines}'
+			f'\nCalculated travel time: {time}'
+			f'\nStations: {stations}'
+		)
 	def minimize_changes(self, possible_lines: list[set[str]]) -> list[set[str]]:
 		def strip_extra_lines(possible_lines_inner) -> list[set[str]]:
 			# add first segment to total lines
@@ -176,7 +180,7 @@ class TransitGraph(nx.Graph):
 					# if there are no continued lines, add all lines from the next segment
 					if len(total_lines[-1]) == 0:
 						total_lines[-1] = next_lines
-			
+
 			return total_lines
 		
 		input_path = strip_extra_lines(possible_lines)
@@ -184,7 +188,13 @@ class TransitGraph(nx.Graph):
 		input_path = strip_extra_lines(input_path)
 		input_path.reverse()
 		
-		return input_path
+		# final step to remove repeats
+		output_path = [input_path[0]]
+		for segment in input_path[1:]:
+			if segment != output_path[-1]:
+				output_path.append(segment)
+		
+		return output_path
 	
 	def segment_wait_time(self, lines: set):
 		"""
@@ -197,7 +207,8 @@ class TransitGraph(nx.Graph):
 			trains_per_hour += (60 / self.wait_times[self.detect_line_type(line)])
 		
 		return 30 / trains_per_hour
-		
+
+
 net = TransitGraph()
 net.load_default_graph()
-path, lines, time = net.fastest_path('Keplerplatz', 'Gasometer', print_results=True)
+net.print_fastest_path('Radetzkyplatz', 'Karlsplatz')
