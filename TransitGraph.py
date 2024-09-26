@@ -80,6 +80,8 @@ class TransitGraph(nx.Graph):
 	def detect_line_type(self, line_name: str) -> str:
 		if match('^\\d{1,2}$', line_name) or line_name in ['D', 'O']:
 			line_type = 'tram'
+		elif line_name == 'BB':
+			line_type = 'trolley'
 		elif match('^U\\d$', line_name):
 			line_type = 'metro'
 		elif match('^S\\d{1,2}$', line_name) or line_name == 'Stammstrecke':
@@ -89,7 +91,7 @@ class TransitGraph(nx.Graph):
 		return line_type
 	
 
-	def fastest_paths(self, source, target, paths_before_transfers: int = 6):
+	def fastest_path(self, source, target, paths_before_transfers: int = 6):
 		"""
 		Finds the fastest path between a source & target station.
 		:param source:
@@ -187,6 +189,6 @@ class TransitGraph(nx.Graph):
 		
 net = TransitGraph()
 net.load_default_graph()
-path, lines, time = net.fastest_path('Stephansplatz', 'Taborstraße')
+path, lines, time = net.fastest_path('Keplerplatz', 'Gasometer')
 #arr = listdir('lines')
 
