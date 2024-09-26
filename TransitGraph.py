@@ -91,7 +91,11 @@ class TransitGraph(nx.Graph):
 		return line_type
 	
 
-	def fastest_path(self, source, target, paths_before_transfers: int = 6):
+	def fastest_path(self,
+		source,
+		target,
+		paths_before_transfers: int = 6,
+		print_results: bool = False):
 		"""
 		Finds the fastest path between a source & target station.
 		:param source:
@@ -136,7 +140,14 @@ class TransitGraph(nx.Graph):
 			total_times.append(current_time)
 		
 		fastest_index = total_times.index(min(total_times))
-
+		
+		if print_results:
+			print(
+				f'\nLines used: {lines_in_paths[fastest_index]}'
+				f'\nCalculated travel time: {total_times[fastest_index]}'
+				f'\nStations: {top_paths[fastest_index]}'
+			)
+		
 		return \
 			top_paths[fastest_index], \
 			lines_in_paths[fastest_index], \
@@ -189,6 +200,4 @@ class TransitGraph(nx.Graph):
 		
 net = TransitGraph()
 net.load_default_graph()
-path, lines, time = net.fastest_path('Keplerplatz', 'Gasometer')
-#arr = listdir('lines')
-
+path, lines, time = net.fastest_path('Keplerplatz', 'Gasometer', print_results=True)

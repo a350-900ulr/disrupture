@@ -6,12 +6,11 @@ Knöllgasse
 Matzleinsdorfer Platz
 Kliebergasse
 Blechturmgasse
-Hauptbahnhof
-Quartier Belvedere
-Schloss Belvedere
-Plößlgasse
-Gußhausstraße
-Schwarzenbergplatz
+Laurenzgasse
+Johan-Strauß-Gasse
+Mayerhofgasse
+Paulanergasse
+Resselgasse
 Karlsplatz
 Burgring
 Volkstheater
