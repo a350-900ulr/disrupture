@@ -5,6 +5,9 @@ from copy import deepcopy
 
 
 class TransitGraph(nx.Graph):
+	"""
+	document more stuff
+	"""
 	# Assumptions: all stations are bidirectional
 	
 	# Travel times between stations, assuming that all intervals are the same.
@@ -199,7 +202,6 @@ class TransitGraph(nx.Graph):
 	def segment_wait_time(self, lines: set):
 		"""
 		for ease of calculation, assume all trains alternate perfectly
-
 		"""
 		trains_per_hour = 0
 		# count number of trains coming per hour
@@ -208,7 +210,7 @@ class TransitGraph(nx.Graph):
 		
 		return 30 / trains_per_hour
 
-
-net = TransitGraph()
-net.load_default_graph()
-net.print_fastest_path('Radetzkyplatz', 'Karlsplatz')
+#
+# net = TransitGraph()
+# net.load_default_graph()
+# net.print_fastest_path('Radetzkyplatz', 'Karlsplatz')
