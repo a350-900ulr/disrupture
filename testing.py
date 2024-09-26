@@ -143,9 +143,9 @@ def minimize_changes(possible_lines: list[set[str]]) -> list[str]:
 				# if there are no continued lines, add all lines from the next segment
 				if len(total_lines[-1]) == 0:
 					total_lines[-1] = next_lines
-			
+
 		return total_lines
-	
+
 	input_path = strip_extra_lines(possible_lines)
 	input_path.reverse()
 	input_path = strip_extra_lines(input_path)
@@ -203,3 +203,9 @@ input_list = [
 	{'1'}
 ]
 print(minimize_changes(input_list))
+
+
+
+from TransitGraph import TransitGraph as tg
+net = tg()
+print(net.segment_wait_time({'S2', 'S8'}))

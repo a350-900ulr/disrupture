@@ -87,8 +87,9 @@ class TransitGraph(nx.Graph):
 		else:
 			raise ValueError(f'Could not automatically determine type of {line_name}')
 		return line_type
+	
 
-	def fastest_path(self, source, target, paths_before_transfers: int = 6):
+	def fastest_paths(self, source, target, paths_before_transfers: int = 6):
 		"""
 		Finds the fastest path between a source & target station.
 		:param source:
@@ -108,30 +109,84 @@ class TransitGraph(nx.Graph):
 		
 		# calculate transit times & get list of possible lines throughout the route
 		total_times = []
-		
+		lines_in_paths = []
 		for candidate_path in top_paths:
 			
-			lines: list[set[str]] = []
+			lines_used: list[set[str]] = []
 			current_time = 0
 			
 			# get initial segment line & transit times
 			for index, station1 in enumerate(candidate_path[:-1]):
 				station2 = candidate_path[index + 1]
 				
-				lines.append(self[station1][station2]['lines'])
+				lines_used.append(self[station1][station2]['lines'])
 				current_time += self[station1][station2]['travel_time']
 			
-			# get line series & add transfer times
+			# get line series
+			lines_condensed = self.minimize_changes(lines_used)
+			lines_in_paths.append(lines_condensed)
 			
+			# calculate transfer times
+			for segment in lines_condensed:
+				# if there is only 1 line in that segment, simply add its wait time
+				current_time += self.segment_wait_time(segment)
 			
-				
+			total_times.append(current_time)
 		
-		# take top (mark if its ever different?)
+		fastest_index = total_times.index(min(total_times))
 
+		return \
+			top_paths[fastest_index], \
+			lines_in_paths[fastest_index], \
+			total_times[fastest_index]
+			
 	
+	def minimize_changes(self, possible_lines: list[set[str]]) -> list[set[str]]:
+		def strip_extra_lines(possible_lines_inner) -> list[set[str]]:
+			# add first segment to total lines
+			total_lines = [possible_lines_inner[0]]
+			# go through the rest of the journey
+			for next_lines in possible_lines_inner[1:]:
+				# if the next segment has different lines
+				if total_lines[-1] != next_lines:
+					# 1st create a duplicate of the current lines for reconsideration
+					total_lines.append(deepcopy(total_lines[-1]))
+					
+					# create a duplicate of that for iteration
+					considered_lines = deepcopy(total_lines[-1])
+					
+					# delete any that do not appear in the next segment
+					for line in considered_lines:
+						if line not in next_lines:
+							total_lines[-1].remove(line)
+					
+					# if there are no continued lines, add all lines from the next segment
+					if len(total_lines[-1]) == 0:
+						total_lines[-1] = next_lines
+			
+			return total_lines
+		
+		input_path = strip_extra_lines(possible_lines)
+		input_path.reverse()
+		input_path = strip_extra_lines(input_path)
+		input_path.reverse()
+		
+		return input_path
+	
+	def segment_wait_time(self, lines: set):
+		"""
+		for ease of calculation, assume all trains alternate perfectly
 
+		"""
+		trains_per_hour = 0
+		# count number of trains coming per hour
+		for line in lines:
+			trains_per_hour += (60 / self.wait_times[self.detect_line_type(line)])
+		
+		return 30 / trains_per_hour
+		
 net = TransitGraph()
 net.load_default_graph()
-test = net.fastest_path('Schönbrunn', 'Stephansplatz')
+path, lines, time = net.fastest_path('Stephansplatz', 'Taborstraße')
 #arr = listdir('lines')
 
