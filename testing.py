@@ -238,9 +238,8 @@ path, lines, time = net.fastest_path('Meidling', 'Friedensbrücke', print_result
 from Simulator import Simulator as Sim
 
 sim = Sim()
-print(sim.disrupt('Meidling'))
-
-
+sim.disrupt('Meidling')
+sim.plot_delay()
 
 
 from TransitGraph import TransitGraph as TG
