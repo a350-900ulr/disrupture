@@ -230,3 +230,10 @@ from TransitGraph import TransitGraph as TG
 net = TG()
 net.load_default_graph()
 path, lines, time = net.fastest_path('Meidling', 'Friedensbrücke', print_results=True, verbose=True)
+
+
+
+from Simulator import Simulator as Sim
+
+sim = Sim()
+sim.generate_journeys()

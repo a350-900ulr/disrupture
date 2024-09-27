@@ -29,12 +29,21 @@ def detect_possible_duplicates(
 	return duplicates
 
 
-# station_names = ["Westbahnhof", "Westbahnhof S", "Karlsplatz", "Oper, Karlsplatz", "Bahnhof", "Hauptbahnhof"]
-# duplicates = detect_possible_duplicates(station_names)
-# print(duplicates)
+'''
+Examples:
+
+station_names = [
+	"Westbahnhof", "Westbahnhof S", "Karlsplatz", "Oper, Karlsplatz", "Bahnhof", "Hauptbahnhof"
+]
+duplicates = detect_possible_duplicates(station_names)
+print(duplicates)
+
+or
 
 net = TG()
-
 for pair in detect_possible_duplicates(list(net.nodes)):
 	print(pair)
+'''
+
+
 

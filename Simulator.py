@@ -4,6 +4,11 @@ from random import sample
 
 class Simulator:
 	def __init__(self, journey_count: int = 1_000):
+		"""
+		Handles simulation of many journeys in order to add a disruption & collect relevant
+		statistics over single or multiple journeys.
+		:param journey_count: # of journeys to simulate
+		"""
 		self.journey_count = journey_count
 		self.net = TG()
 		self.stations = list(self.net.nodes)
@@ -21,6 +26,6 @@ class Simulator:
 				'stations': stations
 			})
 			
-	def get_disruption_stats(station: str, simulated_runs: int = 1_000):
+	def get_disruption_stats(self, station: str, simulated_runs: int = 1_000):
 		for i in range(simulated_runs):
 			...
