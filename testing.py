@@ -1,6 +1,8 @@
 # scratchpad file to test random things. There is no order or structure here
 
 import networkx as nx
+import networkx.exception
+
 from TransitGraph import TransitGraph as tg
 from copy import deepcopy
 
@@ -236,7 +238,7 @@ path, lines, time = net.fastest_path('Meidling', 'Friedensbrücke', print_result
 from Simulator import Simulator as Sim
 
 sim = Sim()
-sim.generate_journeys()
+print(sim.disrupt('Meidling'))
 
 
 
@@ -245,3 +247,18 @@ from TransitGraph import TransitGraph as TG
 from FuzzyFunctions import find_possible_match
 net = TG()
 find_possible_match('arplsaty', list(net.nodes))
+find_possible_match('Prater Hauptallee', list(net.nodes))
+
+
+
+
+
+
+import networkx
+from TransitGraph import TransitGraph as TG
+net = TG()
+net.remove_node('Radetzkyplatz')
+try:
+	path, lines, time = net.fastest_path('Meidling', 'Prater, Hauptallee')
+except networkx.exception.NetworkXNoPath:
+	print('hello')

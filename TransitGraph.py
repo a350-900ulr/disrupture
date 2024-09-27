@@ -176,6 +176,7 @@ class TransitGraph(nx.Graph):
 			(2) The calculated total time for this journey.
 			(3) The list of stations visited in order.
 		"""
+		#print(f'Received journey from {source} to {target}')
 		if not self.has_node(source):
 			find_possible_match(source, list(self.nodes))
 			quit()
