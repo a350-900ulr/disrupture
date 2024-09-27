@@ -2,6 +2,7 @@ import networkx as nx
 from os import listdir
 from re import match
 from copy import deepcopy
+from FuzzyFunctions import find_possible_match
 
 
 class TransitGraph(nx.Graph):
@@ -175,6 +176,12 @@ class TransitGraph(nx.Graph):
 			(2) The calculated total time for this journey.
 			(3) The list of stations visited in order.
 		"""
+		if not self.has_node(source):
+			find_possible_match(source, list(self.nodes))
+			quit()
+		if not self.has_node(target):
+			find_possible_match(target, list(self.nodes))
+			quit()
 		
 		path_generator = nx.shortest_simple_paths(self, source, target, weight='travel_time')
 		

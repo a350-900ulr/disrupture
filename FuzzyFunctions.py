@@ -1,5 +1,4 @@
 from difflib import SequenceMatcher
-from TransitGraph import TransitGraph as TG
 
 
 def detect_possible_duplicates(
@@ -29,6 +28,38 @@ def detect_possible_duplicates(
 	return duplicates
 
 
+def find_possible_match(
+	input_station: str,
+	possible_stations: list[str],
+	max_results: int = 10,
+	threshold: float = .6
+) -> None:
+	"""
+	Given an entire list of available stations, determine the most similar ones
+	"""
+	candidates = []
+	
+	input_station_lower = input_station.lower()
+	
+	for station in possible_stations:
+		if input_station_lower in station.lower() or station.lower() in input_station_lower:
+			candidates.append(station)
+			
+		similarity = SequenceMatcher(None, input_station_lower, station.lower()).ratio()
+		if similarity >= threshold:
+			candidates.append(station)
+
+	print(f'Station {input_station} not found')
+	
+	if len(candidates) > 0:
+		print('Did you mean:')
+		for candidate in candidates[:max_results]:
+			print(f'\t{candidate}')
+		print('Try again with an exact name.')
+	else:
+		print('Try double checking the file `Vienna_trains.png`')
+
+
 '''
 Examples:
 
@@ -40,10 +71,8 @@ print(duplicates)
 
 or
 
+form TransitGraph import TransitGraph as TG
 net = TG()
 for pair in detect_possible_duplicates(list(net.nodes)):
 	print(pair)
 '''
-
-
-

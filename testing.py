@@ -237,3 +237,11 @@ from Simulator import Simulator as Sim
 
 sim = Sim()
 sim.generate_journeys()
+
+
+
+
+from TransitGraph import TransitGraph as TG
+from FuzzyFunctions import find_possible_match
+net = TG()
+find_possible_match('arplsaty', list(net.nodes))
