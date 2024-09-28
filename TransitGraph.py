@@ -3,7 +3,6 @@ from os import listdir
 from re import match
 from copy import deepcopy
 from FuzzyFunctions import find_possible_match
-from tqdm import tqdm
 
 class TransitGraph(nx.Graph):
 	...
@@ -55,7 +54,7 @@ class TransitGraph(nx.Graph):
 			files are allowed.
 		"""
 		
-		for file_name in tqdm(listdir(line_folder), desc='Populating transit graph'):
+		for file_name in listdir(line_folder):
 			line_name = file_name.split('.')[0]
 			stations = []
 
