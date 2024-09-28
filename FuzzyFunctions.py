@@ -40,6 +40,9 @@ def find_possible_match(
 	candidates = []
 	
 	input_station_lower = input_station.lower()
+	input_station_lower = input_station_lower\
+		.replace('str.', 'straße')\
+		.replace('g.', 'gasse')
 	
 	for station in possible_stations:
 		if input_station_lower in station.lower() or station.lower() in input_station_lower:
