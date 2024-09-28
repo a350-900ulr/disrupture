@@ -238,14 +238,14 @@ path, lines, time = net.fastest_path('Meidling', 'Friedensbrücke', print_result
 from Simulator import Simulator as Sim
 
 sim = Sim()
-sim.disrupt('Meidling')
+sim.disrupt_station('Meidling')
 sim.plot_delay()
 
 
 from TransitGraph import TransitGraph as TG
 from FuzzyFunctions import find_possible_match
 net = TG()
-find_possible_match('arplsaty', list(net.nodes))
+find_possible_match('Wahringer Str.', list(net.nodes))
 find_possible_match('Prater Hauptallee', list(net.nodes))
 
 

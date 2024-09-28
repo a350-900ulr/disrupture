@@ -37,6 +37,7 @@ def find_possible_match(
 	"""
 	Given an entire list of available stations, determine the most similar ones
 	"""
+	print(f'input: {input_station}')
 	candidates = []
 	
 	input_station_lower = input_station.lower()
@@ -47,9 +48,10 @@ def find_possible_match(
 	for station in possible_stations:
 		if input_station_lower in station.lower() or station.lower() in input_station_lower:
 			candidates.append(station)
-			
-		similarity = SequenceMatcher(None, input_station_lower, station.lower()).ratio()
-		if similarity >= threshold:
+		
+		# TODO: find better matches for missing parts of names
+		
+		if SequenceMatcher(None, input_station_lower, station.lower()).ratio() >= threshold:
 			candidates.append(station)
 
 	print(f'Station {input_station} not found')

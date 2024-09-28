@@ -5,5 +5,3 @@ Currently a transit route planner for Vienna. If you are not already familiar wi
 # Example usage:
 
 Run `RoutingExample.py` & change the 'origin' & 'target' variables
-
-Lines still missing (will be added soon): 60, 62, 71

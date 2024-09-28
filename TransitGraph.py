@@ -3,7 +3,7 @@ from os import listdir
 from re import match
 from copy import deepcopy
 from FuzzyFunctions import find_possible_match
-
+from tqdm import tqdm
 
 class TransitGraph(nx.Graph):
 	...
@@ -54,7 +54,8 @@ class TransitGraph(nx.Graph):
 		:param line_folder: Name of the folder containing the line files. No subfolders or extra
 			files are allowed.
 		"""
-		for file_name in listdir(line_folder):
+		
+		for file_name in tqdm(listdir(line_folder), desc='Populating transit graph'):
 			line_name = file_name.split('.')[0]
 			stations = []
 
@@ -179,10 +180,10 @@ class TransitGraph(nx.Graph):
 
 		if not self.has_node(source):
 			find_possible_match(source, list(self.nodes))
-			quit()
+			return list(), float(), list()
 		if not self.has_node(target):
 			find_possible_match(target, list(self.nodes))
-			quit()
+			return list(), float(), list()
 		
 		path_generator = nx.shortest_simple_paths(self, source, target, weight='travel_time')
 		
