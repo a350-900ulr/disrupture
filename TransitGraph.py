@@ -48,7 +48,8 @@ class TransitGraph(nx.Graph):
 		"""
 		Populates the graph. Each line needs a file in the following format:
 		
-		* The name of the file is simply line followed by '.txt'. The names supported by
+		*
+			The name of the file is simply line followed by '.txt'. The names supported by
 			automatic line type detection are implemented in `self.detect_line_type`.
 			
 		* The contents must be the name of each station (direction does not matter), 1 per line.
@@ -79,8 +80,9 @@ class TransitGraph(nx.Graph):
 		
 		* lines : A set of the lines servicing this segment.
 		
-		* type : The type of line mainly servicing this. Only the type with the shortest travel
-			time is stored. This is explained further in the code.
+		*
+			type : The type of line mainly servicing this. Only the type with the shortest
+			travel time is stored. This is explained further in the code.
 			
 		* travel_time : The shortest travel time of all lines that service the segment.
 		
@@ -158,39 +160,15 @@ class TransitGraph(nx.Graph):
 		else:
 			raise ValueError(f'Could not automatically determine type of {line_name}')
 		return line_type
-
-	def fastest_path(self,
+	
+	def fastest_paths(self,
 		source: str,
 		target: str,
-		paths_before_transfers: int = 6,
-		sim_mode: bool = False
-	) -> tuple[list[set[str]], float, list[str]]:
+		paths_before_transfers: int,
+	) -> tuple[list[list[set[str]]], list[float], list[list[str]]]:
 		"""
-		Finds the fastest path between a source & target station. This partially uses the
-		implementation `networkx.shortest_simple_paths` by taking the travel_time for a segment
-		as the weight. The transfer times between lines is then manually calculated.
-		
-		:param source: The source station
-		:param target: The target station
-		:param paths_before_transfers: The number of paths to consider before calculating the
-			transfer times. This is because a journey could become longer than expected due to
-			waiting for lower frequency lines. The fastest line among the initial paths is
-			returned after this is calculated
-		:param sim_mode: Internal parameter for running simulations, which skips checking
-			possible matches for missing nodes.
-		:return: A tuple of the following information:
-			(1) The lines used in the journey as a list of sets.
-			(2) The calculated total time for this journey.
-			(3) The list of stations visited in order.
+		Internal helper function called by `self.fastest_path`, see there for docs
 		"""
-
-		if not sim_mode:
-			if not self.has_node(source):
-				find_possible_match(source, list(self.nodes))
-				return list(), float(), list()
-			if not self.has_node(target):
-				find_possible_match(target, list(self.nodes))
-				return list(), float(), list()
 		
 		path_generator = nx.shortest_simple_paths(self, source, target, weight='travel_time')
 		
@@ -200,8 +178,8 @@ class TransitGraph(nx.Graph):
 			if index >= paths_before_transfers:
 				break
 			top_paths.append(path)
-			
-		# calculate transit times & also get a list of possible lines throughout the route
+		
+		# calculate transfer times & also get a list of possible lines throughout the route
 		total_times = []  # same length as `top_paths`
 		lines_in_paths = []  # lines used in each candidate journey
 		for candidate_path in top_paths:
@@ -245,6 +223,44 @@ class TransitGraph(nx.Graph):
 				current_time += self.segment_wait_time(line)
 			
 			total_times.append(current_time)
+			
+		return lines_in_paths, total_times, top_paths
+		
+	def fastest_path(self,
+		source: str,
+		target: str,
+		paths_before_transfers: int = 20,
+		sim_mode: bool = False
+	) -> tuple[list[set[str]], float, list[str]]:
+		"""
+		Finds the fastest path between a source & target station. This partially uses the
+		implementation `networkx.shortest_simple_paths` by taking the travel_time for a segment
+		as the weight. The transfer times between lines is then manually calculated.
+		
+		:param source: The source station
+		:param target: The target station
+		:param paths_before_transfers: The number of paths to consider before calculating the
+			transfer times. This is because a journey could become longer than expected due to
+			waiting for lower frequency lines. The fastest line among the initial paths is
+			returned after this is calculated
+		:param sim_mode: Internal parameter for running simulations, which skips checking
+			possible matches for missing nodes.
+		:return: A tuple of the following information:
+			(1) The lines used in the journey as a list of sets.
+			(2) The calculated total time for this journey.
+			(3) The list of stations visited in order.
+		"""
+
+		if not sim_mode:
+			if not self.has_node(source):
+				find_possible_match(source, list(self.nodes))
+				return list(), float(), list()
+			if not self.has_node(target):
+				find_possible_match(target, list(self.nodes))
+				return list(), float(), list()
+		
+		lines_in_paths, total_times, top_paths = \
+			self.fastest_paths(source, target, paths_before_transfers)
 		
 		fastest_index = total_times.index(min(total_times))
 		

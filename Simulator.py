@@ -175,7 +175,7 @@ class Simulator:
 		delayed = 0
 		delays = []
 		delays_percent = []
-		for journey in self.journeys:
+		for index, journey in enumerate(self.journeys):
 			if 'time_new' in journey:
 				if journey['time_new'] != journey['time']:
 					delayed += 1
@@ -216,6 +216,7 @@ class Simulator:
 		for journey in self.journeys:
 			if affected_only:
 				if 'time_new' in journey and journey['time'] != journey['time_new']:
+					
 					time_old.append(journey['time'])
 					time_new.append(journey['time_new'])
 			else:

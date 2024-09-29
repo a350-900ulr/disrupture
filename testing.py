@@ -1,5 +1,7 @@
 # scratchpad file to test random things. There is no order or structure here
 
+raise Exception()
+
 import networkx as nx
 import networkx.exception
 
@@ -264,8 +266,18 @@ except networkx.exception.NetworkXNoPath:
 
 
 from Simulator import Simulator
-sim = Simulator(10_000)
+sim = Simulator(1000)
 #sim.simulate_journeys()
 sim.disrupt('Karlsplatz')
 sim.simulate_disruption(print_unreachable=False)
 stats = sim.get_stats()
+
+
+
+# debug
+origin = 'Hadersdorf'
+target = 'Weidlingau'
+
+from TransitGraph import TransitGraph as TG
+net = TG()
+route = net.fastest_paths(origin, target, 20)
