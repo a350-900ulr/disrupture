@@ -189,7 +189,7 @@ class Simulator:
 				canceled += 1
 
 		return {
-			'score': (2 * canceled + delayed) * np.mean(delays_percent),  # i made this up
+			'score': canceled * 100 + delayed * np.mean(delays_percent),
 			'journeys_delayed': delayed,
 			'journeys_faster': faster,
 			'journeys_canceled': canceled,
