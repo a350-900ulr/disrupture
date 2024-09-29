@@ -159,6 +159,7 @@ class TransitGraph(nx.Graph):
 		source: str,
 		target: str,
 		paths_before_transfers: int = 6,
+		sim_mode: bool = False
 	) -> tuple[list[set[str]], float, list[str]]:
 		"""
 		Finds the fastest path between a source & target station. This partially uses the
@@ -171,18 +172,21 @@ class TransitGraph(nx.Graph):
 			transfer times. This is because a journey could become longer than expected due to
 			waiting for lower frequency lines. The fastest line among the initial paths is
 			returned after this is calculated
+		:param sim_mode: Internal parameter for running simulations, which skips checking
+			possible matches for missing nodes.
 		:return: A tuple of the following information:
 			(1) The lines used in the journey as a list of sets.
 			(2) The calculated total time for this journey.
 			(3) The list of stations visited in order.
 		"""
 
-		if not self.has_node(source):
-			find_possible_match(source, list(self.nodes))
-			return list(), float(), list()
-		if not self.has_node(target):
-			find_possible_match(target, list(self.nodes))
-			return list(), float(), list()
+		if not sim_mode:
+			if not self.has_node(source):
+				find_possible_match(source, list(self.nodes))
+				return list(), float(), list()
+			if not self.has_node(target):
+				find_possible_match(target, list(self.nodes))
+				return list(), float(), list()
 		
 		path_generator = nx.shortest_simple_paths(self, source, target, weight='travel_time')
 		

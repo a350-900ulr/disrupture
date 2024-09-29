@@ -15,21 +15,26 @@ class Simulator:
 		"""
 		self.journey_count = journey_count
 		self.net = TG()
-		self.stations = list(self.net.nodes)
 		self.journeys = list(dict())
 		
-		self.disrupted = False
+		# flags
+		self.disruption = False
+		self.disruption_ran = False
 	
-	def reset_graph(self) -> None:
+	def reset_graph(self, new_journey_count: int = None) -> None:
 		"""
 		Resets the graph to its initial state. Useful for undoing any simulated disruptions.
 		This removes all currently simulated journeys & disruptions.
+		:param new_journey_count: a new # of journeys to simulate
 		"""
+		if new_journey_count is not None:
+			self.journey_count = new_journey_count
 		self.net = TG()
-		self.journeys = list(dict())
-		self.disrupted = False
+		self.journeys = list()
+		self.disruption = False
+		self.disruption_ran = False
 	
-	def generate_journeys(self) -> None:
+	def simulate_journeys(self) -> None:
 		"""
 		Simulates a `self.journey_count` number of journeys with randomly initialized origin &
 		target destinations. This information is stored in the `self.journeys` dictionary.
@@ -39,7 +44,7 @@ class Simulator:
 			print('Warning: journeys already simulated. Overwriting existing journeys.')
 		
 		for _ in tqdm(range(self.journey_count), desc='Simulating journeys'):
-			origin, target = sample(self.stations, k=2)
+			origin, target = sample(list(self.net.nodes), k=2)
 			lines, time, stations = self.net.fastest_path(origin, target)
 			self.journeys.append({
 				'origin': origin,
@@ -49,9 +54,7 @@ class Simulator:
 				'stations': stations
 			})
 			
-	def disrupt(
-		self, station: str | list[str | set], print_unreachable: bool = False
-	) -> None:
+	def disrupt(self, station: str | list[str | set]) -> None:
 		"""
 		Simulates a disruption & adds the new trip details to the `self.journeys` dictionary.
 		:param station: Either a single string of the station name to be deleted from the
@@ -59,8 +62,6 @@ class Simulator:
 			containing the origin & target names of the desired segment to be deleted.
 			An optional 3rd element in the list can be a set containing only specific lines to
 			remove from the segment. If this is left empty, the entire segment is removed.
-		:param print_unreachable: Print out the origin & target of journeys that are no longer
-			possible due to the disruption.
 		"""
 		
 		if self.disrupted:
@@ -69,34 +70,20 @@ class Simulator:
 		# if journeys have not been simulated yet, run it
 		if len(self.journeys) == 0:
 			print('Journeys have not been simulated yet, doing now')
-			self.generate_journeys()
+			self.simulate_journeys()
 			
 		if type(station) is str:
-			self.disrupt_station(station, print_unreachable)
+			self.disrupt_station(station)
 		elif type(station) is list:
-			match len(station):
-				case 2:
-					self.disrupt_segment(
-						origin=station[0],
-						target=station[1],
-						print_unreachable=print_unreachable
-					)
-				case 3:
-					self.disrupt_segment(
-						origin=station[0],
-						target=station[1],
-						certain_lines=station[2],
-						print_unreachable=print_unreachable
-					)
-				case _:
-					print(
-						'If given a list, only Origin & Target station can be supplied, '
-						'with an optional set of lines'
-					)
+			assert len(station) in [2, 3], \
+				'If given a list, only Origin & Target station can be supplied, ' \
+				'with an optional set of lines'
+			self.disrupt_segment(*station)
+
 		else:
 			raise TypeError('Station must be either a string or a list of 2 strings')
 		
-	def disrupt_station(self, station_to_close: str, print_unreachable: bool = False) -> None:
+	def disrupt_station(self, station_to_close: str) -> None:
 		"""
 		Called by `self.disrupt()`. Relevant docs are there.
 		"""
@@ -105,34 +92,9 @@ class Simulator:
 			return
 		
 		self.net.remove_node(station_to_close)
-		
-		for journey in tqdm(self.journeys, desc='Simulating station disruption'):
-			if station_to_close in [journey['origin'], journey['target']]:
-				if print_unreachable:
-					print(
-						f'Journey from {journey["origin"]} to {journey["target"]} not possible'
-					)
-				continue
-			
-			try:
-				lines, time, stations = self.net.fastest_path(
-					journey['origin'], journey['target']
-				)
-				journey['lines_new'] = lines
-				journey['time_new'] = time
-				journey['stations_new'] = stations
-			except nx.exception.NetworkXNoPath:
-				if print_unreachable:
-					print(
-						f'Journey from {journey["origin"]} to {journey["target"]} '
-						f'is no longer reachable'
-					)
-				continue
-		self.disrupted = True
+		self.disruption = True
 	
-	def disrupt_segment(
-		self, origin, target, certain_lines: set = None, print_unreachable: bool = False
-	) -> None:
+	def disrupt_segment(self, origin, target, certain_lines: set = None) -> None:
 		"""
 		Called by `self.disrupt()`. Relevant docs are there.
 		"""
@@ -147,7 +109,7 @@ class Simulator:
 			return
 		
 		if not self.net.has_edge(origin, target):
-			print(f'Origin {origin} & Target {target} are not adjacent to eachother.')
+			print(f'Origin `{origin}` & Target `{target}` are not adjacent to eachother.')
 			return
 			
 		if certain_lines is None:
@@ -156,14 +118,33 @@ class Simulator:
 			for line in certain_lines:
 				self.net[origin][target]['lines'].remove(line)
 		
-		for journey in tqdm(self.journeys, desc='Simulating segment disruption'):
+		self.disruption = True
+		
+	def simulate_disruption(self, print_unreachable: bool = False) -> None:
+		"""
+		To re-run all journeys after a `self.disrupt()`
+		:param print_unreachable: Print out the origin & target of journeys that are no longer
+			possible due to the disruption.
+		"""
+		
+		if not self.disruption:
+			print('Error: Disrupt a station/segment before simulating it.')
+			return
+		
+		for journey in tqdm(self.journeys, desc='Simulating disruption'):
 			try:
 				lines, time, stations = self.net.fastest_path(
-					journey['origin'], journey['target']
+					journey['origin'], journey['target'], sim_mode=True
 				)
 				journey['lines_new'] = lines
 				journey['time_new'] = time
 				journey['stations_new'] = stations
+			except nx.exception.NodeNotFound:
+				if print_unreachable:
+					print(
+						f'Journey from {journey["origin"]} to {journey["target"]} not possible'
+					)
+				continue
 			except nx.exception.NetworkXNoPath:
 				if print_unreachable:
 					print(
@@ -171,16 +152,16 @@ class Simulator:
 						f'is no longer reachable'
 					)
 				continue
-				
-		self.disrupted = True
+		
+		self.disruption_ran = True
 		
 	def get_stats(self) -> dict:
 		"""
 		delay, delay as percent,
 		:return:
 		"""
-		if not self.disrupted:
-			print('Error: No disruption was found')
+		if not self.disruption_ran:
+			print('Error: No simulation of disruption was found')
 			return dict()
 		
 		for journey in self.journeys:
@@ -188,7 +169,11 @@ class Simulator:
 				...
 	
 	def plot_delay(self, affected_only: bool = True) -> None:
-		if not self.disrupted:
+		"""
+		Plots 2 histograms of the previous & new travel times of the simulated journeys.
+		:param affected_only: Only plot journeys affected by the disruption.
+		"""
+		if not self.disruption_ran:
 			print('Error: No disruption was found')
 			return
 		
@@ -208,8 +193,5 @@ class Simulator:
 		plt.hist(time_new, bins=25, alpha=.5, label='new')
 		plt.legend(loc='upper right')
 		plt.show()
-
-
-sim = Simulator(10)
-sim.disrupt(['Schwedenplatz', 'Schottenring'])
-sim.plot_delay()
+		
+		

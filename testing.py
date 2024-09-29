@@ -261,3 +261,11 @@ try:
 	path, lines, time = net.fastest_path('Meidling', 'Prater, Hauptallee')
 except networkx.exception.NetworkXNoPath:
 	print('hello')
+
+
+from Simulator import Simulator
+sim = Simulator(1000)
+sim.simulate_journeys()
+sim.net.remove_node('Radetzkyplatz')
+sim.disrupt(['Karlsplatz', 'Stephansplatz'])
+sim.simulate_disruption(print_unreachable=True)
