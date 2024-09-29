@@ -18,6 +18,8 @@ class Simulator:
 		self.net = TG()
 		self.journeys = list(dict())
 		
+		self.removed_stations = []
+		
 		# flags
 		self.disruption = False
 		self.disruption_ran = False
@@ -90,6 +92,9 @@ class Simulator:
 			assert len(station) in [2, 3], \
 				'If given a list, only Origin & Target station can be supplied, ' \
 				'with an optional set of lines'
+			if len(station) == 3:
+				for line in station[2]:
+					assert type(line) is str, 'Lines to be canceled must be strings'
 			self.disrupt_segment(*station)
 
 		else:
@@ -100,10 +105,14 @@ class Simulator:
 		Called by `self.disrupt()`. Relevant docs are there.
 		"""
 		if not self.net.has_node(station_to_close):
-			find_possible_match(station_to_close, list(self.net.nodes))
+			if station_to_close in self.removed_stations:
+				print('Station already removed.')
+			else:
+				find_possible_match(station_to_close, list(self.net.nodes))
 			return
 		
 		self.net.remove_node(station_to_close)
+		self.removed_stations.append(station_to_close)
 		self.disruption = True
 	
 	def disrupt_segment(self, origin, target, certain_lines: set = None) -> None:
@@ -114,8 +123,12 @@ class Simulator:
 		not_found_flag = False
 		for station in [origin, target]:
 			if not self.net.has_node(station):
-				find_possible_match(station, list(self.net.nodes))
-				not_found_flag = True
+				if station in self.removed_stations:
+					print(f'Station {station} already removed, thus also this segment.')
+					return
+				else:
+					find_possible_match(station, list(self.net.nodes))
+					not_found_flag = True
 
 		if not_found_flag:
 			return

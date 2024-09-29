@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 def schedule_disruptions(
 	disruptions: list[str | list[str | set]], max_at_once: int = 2, resolution: int = 100
-):
+) -> None:
 	"""
 	Takes in a list of disruptions & runs through every combination calculating the score.
 	Each combination is then print from lowest to highest score.
@@ -15,7 +15,6 @@ def schedule_disruptions(
 		`Simulator.disrupt(station)`
 	:param max_at_once: # of disruptions allowed in each combination.
 	:param resolution: # of journeys to simulate when calculating the disruption score
-	:return:
 	"""
 	
 	def min_index_with_none(input_list: list):
@@ -31,7 +30,7 @@ def schedule_disruptions(
 		
 		return min_index
 	
-	assert 1 < max_at_once < len(disruptions)
+	assert 1 < max_at_once <= len(disruptions)
 	
 	# get all combinations of disruptions
 	comb = list(combinations(disruptions, max_at_once))
@@ -69,8 +68,8 @@ def schedule_disruptions(
 		for index, disruption in enumerate(disrupt_combos_left):
 			if disruption is None:
 				continue
-				
-			for best_disrupt in comb[best_indices[-1]]:  # maybe -1 instead?
+			
+			for best_disrupt in comb[best_indices[-1]]:
 				if best_disrupt in disruption:
 					removal_indices.append(index)
 					# if this disruption contains any of the best_disrupt stations, the rest of this
@@ -81,6 +80,7 @@ def schedule_disruptions(
 			disrupt_combos_left[removal_index] = None
 			scores_left[removal_index] = None
 	
+	print('Recommended closure order:')
 	for index in best_indices:
 		print(comb[index])
 		
