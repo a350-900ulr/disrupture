@@ -150,7 +150,6 @@ class Simulator:
 		To re-run all journeys after a `self.disrupt()`
 		:param print_unreachable: Print out the origin & target of journeys that are no longer
 			possible due to the disruption.
-		:param loading_bar: Whether to use a tqdm loading bar. This is not used when scheduling
 		"""
 		
 		if not self.disruption:
