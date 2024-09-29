@@ -4,4 +4,4 @@ Currently a transit route planner for Vienna. If you are not already familiar wi
 
 # Example usage:
 
-Run `RoutingExample.py` & change the 'origin' & 'target' variables
+Examples of using the various classes are found in `Results.ipynb`
