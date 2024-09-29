@@ -255,7 +255,7 @@ find_possible_match('Prater Hauptallee', list(net.nodes))
 
 import networkx
 from TransitGraph import TransitGraph as TG
-net = TG()
+net = TG(verbose_loading=True)
 net.remove_node('Radetzkyplatz')
 try:
 	path, lines, time = net.fastest_path('Meidling', 'Prater, Hauptallee')
@@ -264,8 +264,8 @@ except networkx.exception.NetworkXNoPath:
 
 
 from Simulator import Simulator
-sim = Simulator(1000)
-sim.simulate_journeys()
-sim.net.remove_node('Radetzkyplatz')
-sim.disrupt(['Karlsplatz', 'Stephansplatz'])
-sim.simulate_disruption(print_unreachable=True)
+sim = Simulator(10_000)
+#sim.simulate_journeys()
+sim.disrupt('Karlsplatz')
+sim.simulate_disruption(print_unreachable=False)
+stats = sim.get_stats()

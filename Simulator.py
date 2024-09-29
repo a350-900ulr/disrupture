@@ -1,3 +1,4 @@
+import numpy as np
 from FuzzyFunctions import find_possible_match
 from TransitGraph import TransitGraph as TG
 from random import sample
@@ -64,9 +65,15 @@ class Simulator:
 			remove from the segment. If this is left empty, the entire segment is removed.
 		"""
 		
-		if self.disrupted:
-			print('Warning: Disruption has already been simulated. Overwriting existing data.')
-		
+		if self.disruption:
+			print('Warning: Disruption has already been set. Overwriting existing data.')
+		if self.disruption_ran:
+			print(
+				'Error: Disruption has already been simulated. '
+				'Reset graph before creating a new disruption.'
+			)
+			return
+			
 		# if journeys have not been simulated yet, run it
 		if len(self.journeys) == 0:
 			print('Journeys have not been simulated yet, doing now')
@@ -131,7 +138,7 @@ class Simulator:
 			print('Error: Disrupt a station/segment before simulating it.')
 			return
 		
-		for journey in tqdm(self.journeys, desc='Simulating disruption'):
+		for journey in tqdm(self.journeys, desc='Simulating disruption', leave=False):
 			try:
 				lines, time, stations = self.net.fastest_path(
 					journey['origin'], journey['target'], sim_mode=True
@@ -164,9 +171,36 @@ class Simulator:
 			print('Error: No simulation of disruption was found')
 			return dict()
 		
+		canceled = 0
+		delayed = 0
+		delays = []
+		delays_percent = []
 		for journey in self.journeys:
 			if 'time_new' in journey:
-				...
+				if journey['time_new'] != journey['time']:
+					delayed += 1
+					delays.append(journey['time_new'] - journey['time'])
+					delays_percent.append((journey['time_new']*100) / journey['time'] - 100)
+			else:
+				canceled += 1
+				
+		return {
+			'journeys_delayed': delayed,
+			'journeys_canceled': canceled,
+			'journeys_total': self.journey_count,
+			'delay_times': {
+				'min': min(delays),
+				'median': np.median(delays),
+				'mean': np.mean(delays),
+				'max': max(delays),
+			},
+			'delay_times_perc': {
+				'min': min(delays_percent),
+				'median': np.median(delays_percent),
+				'mean': np.mean(delays_percent),
+				'max': max(delays_percent),
+			}
+		}
 	
 	def plot_delay(self, affected_only: bool = True) -> None:
 		"""

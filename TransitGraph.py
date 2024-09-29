@@ -4,6 +4,7 @@ from re import match
 from copy import deepcopy
 from FuzzyFunctions import find_possible_match
 
+
 class TransitGraph(nx.Graph):
 	...
 	'''
@@ -33,15 +34,17 @@ class TransitGraph(nx.Graph):
 		'S45': 10
 	}
 	
-	def __init__(self):
+	def __init__(self, verbose_loading: bool = False):
 		"""
 		An extension of the networkx `Graph` class, with some extra methods that pertain to a
-		transit network. All lines are assumed to be fully bi-directional, meaning no one-way stops.
+		transit network. All lines are assumed to be fully bi-directional, meaning no one-way
+		stops.
+		:param verbose_loading: Print out line conflict types when loading default graph.
 		"""
 		super().__init__()
-		self.load_default_graph()
+		self.load_default_graph(verbose=verbose_loading)
 	
-	def load_default_graph(self, line_folder: str = 'lines') -> None:
+	def load_default_graph(self, line_folder: str = 'lines', verbose: bool = False) -> None:
 		"""
 		Populates the graph. Each line needs a file in the following format:
 		
@@ -52,6 +55,7 @@ class TransitGraph(nx.Graph):
 		
 		:param line_folder: Name of the folder containing the line files. No subfolders or extra
 			files are allowed.
+		:param verbose: Print out line conflict types when loading default graph.
 		"""
 		
 		for file_name in listdir(line_folder):
@@ -61,7 +65,7 @@ class TransitGraph(nx.Graph):
 			with open(f'{line_folder}/{file_name}', 'r') as file:
 				for line in file:
 					stations.append(line.strip())
-			self.add_lines(line_name, stations)
+			self.add_lines(line_name, stations, verbose=verbose)
 		
 	def add_lines(self,
 		line_name: str,
@@ -216,8 +220,29 @@ class TransitGraph(nx.Graph):
 			lines_in_paths.append(lines_used)
 			
 			# calculate transfer times
-			for segment in lines_used:
-				current_time += self.segment_wait_time(segment)
+			previous_type = None
+			for line in lines_used:
+				'''
+				Although technically a line can be of multiple types, we take the 1st one
+				as a simplification. The conflicts themselves can be seen by running
+				
+				load_default_graph(verbose_loading=True)
+				
+				TODO: see specific behavior of this
+				'''
+				current_type = self.detect_line_type(next(iter(line)))
+				
+				if previous_type is None:
+					previous_type = current_type
+				else:
+					# impose transfer penalty
+					if current_type != previous_type:
+						current_time += 2
+						previous_type = current_type
+					else:
+						current_time += 1
+				
+				current_time += self.segment_wait_time(line)
 			
 			total_times.append(current_time)
 		
@@ -239,6 +264,7 @@ class TransitGraph(nx.Graph):
 			f'\nCalculated travel time: {time}'
 			f'\nStations: {stations}'
 		)
+		
 	def minimize_changes(self, possible_lines: list[set[str]]) -> list[set[str]]:
 		"""
 		Helper function that takes all available lines for a given route & determines the ideal
