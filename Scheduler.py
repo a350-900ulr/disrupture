@@ -1,15 +1,28 @@
 from itertools import combinations
 from Simulator import Simulator as Sim
 from copy import deepcopy
-import sys
+from sys import maxsize
+from tqdm import tqdm
 
-	
-	
+
 def schedule_disruptions(
 	disruptions: list[str | list[str | set]], max_at_once: int = 2, resolution: int = 100
 ):
+	"""
+	Takes in a list of disruptions & runs through every combination calculating the score.
+	Each combination is then print from lowest to highest score.
+	:param disruptions: For more detailed description of the disruption format, see
+		`Simulator.disrupt(station)`
+	:param max_at_once: # of disruptions allowed in each combination.
+	:param resolution: # of journeys to simulate when calculating the disruption score
+	:return:
+	"""
+	
 	def min_index_with_none(input_list: list):
-		min_value = sys.maxsize
+		"""
+		Finds the smallest number in a list & returns its index.
+		"""
+		min_value = maxsize
 		min_index = -1
 		for i, value in enumerate(input_list):
 			if value is not None and value < min_value:
@@ -22,21 +35,19 @@ def schedule_disruptions(
 	
 	# get all combinations of disruptions
 	comb = list(combinations(disruptions, max_at_once))
-	print(f'# of combinations to test: {len(comb)}')
 	
-	sim = Sim(journey_count=resolution)
+	sim = Sim(journey_count=resolution, loading_bars=False)
 	
 	# collect scores of each pair
 	scores = []
 	
-	for combo in comb:
-		# sim.reset_graph()
-		# sim.simulate_journeys()
-		# for disruption in combo:
-		# 	sim.disrupt(disruption)
-		# sim.simulate_disruption()
-		# scores.append(sim.get_stats()['score'])
-		scores.append(sum([int(x) for x in combo]))
+	for combo in tqdm(comb, desc='Running combinations'):
+		sim.reset_graph()
+		sim.simulate_journeys()
+		for disruption in combo:
+			sim.disrupt(disruption)
+		sim.simulate_disruption()
+		scores.append(sim.get_stats()['score'])
 		
 	disruptions_left = deepcopy(disruptions)
 	disrupt_combos_left = deepcopy(comb)
@@ -75,6 +86,3 @@ def schedule_disruptions(
 		
 	for disruption in disruptions_left:
 		print(disruption)
-
-
-schedule_disruptions(['20', '7', '2', '23', '15', '8', '4'], 2)

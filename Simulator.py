@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 
 
 class Simulator:
-	def __init__(self, journey_count: int = 1_000):
+	def __init__(self, journey_count: int = 1_000, loading_bars: bool = True):
 		"""
 		Handles simulation of many journeys in order to add a disruption & collect relevant
 		statistics over single or multiple journeys.
@@ -21,6 +21,8 @@ class Simulator:
 		# flags
 		self.disruption = False
 		self.disruption_ran = False
+		
+		self.loading_bars = loading_bars
 	
 	def reset_graph(self, new_journey_count: int = None) -> None:
 		"""
@@ -42,9 +44,14 @@ class Simulator:
 		"""
 		
 		if len(self.journeys) != 0:
-			print('Warning: journeys already simulated. Overwriting existing journeys.')
+			print('Error: journeys already simulated. Reset graph before simulating again.')
+			return
 		
-		for _ in tqdm(range(self.journey_count), desc='Simulating journeys'):
+		iterator = tqdm(range(self.journey_count), desc='Simulating journeys') \
+			if self.loading_bars \
+			else range(self.journey_count)
+	
+		for _ in iterator:
 			origin, target = sample(list(self.net.nodes), k=2)
 			lines, time, stations = self.net.fastest_path(origin, target)
 			self.journeys.append({
@@ -65,8 +72,6 @@ class Simulator:
 			remove from the segment. If this is left empty, the entire segment is removed.
 		"""
 		
-		if self.disruption:
-			print('Warning: Disruption has already been set. Overwriting existing data.')
 		if self.disruption_ran:
 			print(
 				'Error: Disruption has already been simulated. '
@@ -132,13 +137,18 @@ class Simulator:
 		To re-run all journeys after a `self.disrupt()`
 		:param print_unreachable: Print out the origin & target of journeys that are no longer
 			possible due to the disruption.
+		:param loading_bar: Whether to use a tqdm loading bar. This is not used when scheduling
 		"""
 		
 		if not self.disruption:
 			print('Error: Disrupt a station/segment before simulating it.')
 			return
 		
-		for journey in tqdm(self.journeys, desc='Simulating disruption', leave=False):
+		iterator = tqdm(self.journeys, desc='Simulating disruption') \
+			if self.loading_bars \
+			else self.journeys
+		
+		for journey in iterator:
 			try:
 				lines, time, stations = self.net.fastest_path(
 					journey['origin'], journey['target'], sim_mode=True

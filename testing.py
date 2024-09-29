@@ -282,3 +282,10 @@ target = 'Weidlingau'
 from TransitGraph import TransitGraph as TG
 net = TG()
 route = net.fastest_paths(origin, target, 20)
+
+
+
+
+from tqdm import tqdm
+
+for i in tqdm(range(10), leave=False)
