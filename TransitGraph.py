@@ -229,7 +229,7 @@ class TransitGraph(nx.Graph):
 	def fastest_path(self,
 		source: str,
 		target: str,
-		paths_before_transfers: int = 20,
+		paths_before_transfers: int = 10,
 		sim_mode: bool = False
 	) -> tuple[list[set[str]], float, list[str]]:
 		"""

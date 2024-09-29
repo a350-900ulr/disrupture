@@ -172,20 +172,26 @@ class Simulator:
 			return dict()
 		
 		canceled = 0
+		faster = 0
 		delayed = 0
 		delays = []
 		delays_percent = []
 		for index, journey in enumerate(self.journeys):
 			if 'time_new' in journey:
 				if journey['time_new'] != journey['time']:
-					delayed += 1
+					if journey['time_new'] < journey['time']:
+						faster += 1
+					else:
+						delayed += 1
 					delays.append(journey['time_new'] - journey['time'])
 					delays_percent.append((journey['time_new']*100) / journey['time'] - 100)
 			else:
 				canceled += 1
-				
+
 		return {
+			'score': (2 * canceled + delayed) * np.mean(delays_percent),  # i made this up
 			'journeys_delayed': delayed,
+			'journeys_faster': faster,
 			'journeys_canceled': canceled,
 			'journeys_total': self.journey_count,
 			'delay_times': {
@@ -216,7 +222,6 @@ class Simulator:
 		for journey in self.journeys:
 			if affected_only:
 				if 'time_new' in journey and journey['time'] != journey['time_new']:
-					
 					time_old.append(journey['time'])
 					time_new.append(journey['time_new'])
 			else:

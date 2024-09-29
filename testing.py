@@ -266,9 +266,10 @@ except networkx.exception.NetworkXNoPath:
 
 
 from Simulator import Simulator
-sim = Simulator(1000)
+sim = Simulator(10_000)
 #sim.simulate_journeys()
-sim.disrupt('Karlsplatz')
+sim.disrupt(['Karlsplatz', 'Stadtpark'])
+sim.disrupt(['Stadtpark', 'Mitte-Landstaße'])
 sim.simulate_disruption(print_unreachable=False)
 stats = sim.get_stats()
 
