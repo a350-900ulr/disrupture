@@ -8,15 +8,21 @@ from matplotlib import pyplot as plt
 
 
 class Simulator:
-	def __init__(self, journey_count: int = 1_000, loading_bars: bool = True):
+	def __init__(self,
+		journey_count: int = 1_000,
+		paths_before_transfers: int = 10,
+		loading_bars: bool = True
+	):
 		"""
 		Handles simulation of many journeys in order to add a disruption & collect relevant
 		statistics over single or multiple journeys.
 		:param journey_count: # of journeys to simulate
+		:param paths_before_transfers: see `TransitGraph.__init__()` for docs
+		:param loading_bars: whether to display tqdm loading bars. Used in `Scheduler.py`
 		"""
 		self.journey_count = journey_count
-		self.net = TG()
-		self.journeys = list(dict())
+		self.net = TG(paths_before_transfers)
+		self.journeys: list[dict] = []
 		
 		self.removed_stations = []
 		
@@ -36,6 +42,9 @@ class Simulator:
 			self.journey_count = new_journey_count
 		self.net = TG()
 		self.journeys = list()
+		
+		self.removed_stations = []
+		
 		self.disruption = False
 		self.disruption_ran = False
 	

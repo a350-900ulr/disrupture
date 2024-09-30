@@ -6,7 +6,10 @@ from tqdm import tqdm
 
 
 def schedule_disruptions(
-	disruptions: list[str | list[str | set]], max_at_once: int = 2, resolution: int = 100
+	disruptions: list[str | list[str | set]],
+	max_at_once: int = 2,
+	journey_count: int = 1_000,
+	paths_before_transfers: int = 10
 ) -> None:
 	"""
 	Takes in a list of disruptions & runs through every combination calculating the score.
@@ -14,7 +17,10 @@ def schedule_disruptions(
 	:param disruptions: For more detailed description of the disruption format, see
 		`Simulator.disrupt(station)`
 	:param max_at_once: # of disruptions allowed in each combination.
-	:param resolution: # of journeys to simulate when calculating the disruption score
+	:param journey_count: # of journeys to simulate when calculating the disruption score. This
+		increases the accuracy of the disruption score.
+	:param paths_before_transfers: # of optimal paths to generate when calculating journey times
+		before calculating transfer times. This increases the accuracy of journey delay times.
 	"""
 	
 	def min_index_with_none(input_list: list):
@@ -35,7 +41,7 @@ def schedule_disruptions(
 	# get all combinations of disruptions
 	comb = list(combinations(disruptions, max_at_once))
 	
-	sim = Sim(journey_count=resolution, loading_bars=False)
+	sim = Sim(journey_count, paths_before_transfers, loading_bars=False)
 	
 	# collect scores of each pair
 	scores = []

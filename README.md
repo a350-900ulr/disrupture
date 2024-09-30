@@ -2,6 +2,8 @@
 
 A transit planner for Vienna. If you are not already familiar with the trains in Vienna, take a look at `Vienna_trains.png`. 
 
+All station data was acquired from https://citymapper.com/
+
 # Functions
 
 1. Routing - 
@@ -19,5 +21,7 @@ A transit planner for Vienna. If you are not already familiar with the trains in
 For more details on functions & their arguments, view the respective docs. 
 
 # Example usage
+
+This program uses Python version 3.12
 
 Examples of using the various classes are found in `Results.ipynb`

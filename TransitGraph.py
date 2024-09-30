@@ -34,15 +34,20 @@ class TransitGraph(nx.Graph):
 		'S45': 10
 	}
 	
-	def __init__(self, verbose_loading: bool = False):
+	def __init__(self, paths_before_transfers: int = 10, verbose_loading: bool = False):
 		"""
 		An extension of the networkx `Graph` class, with some extra methods that pertain to a
-		transit network. All lines are assumed to be fully bi-directional, meaning no one-way
+		transit network. All lines are assumed to be fully bidirectional, meaning no one-way
 		stops.
+		:param paths_before_transfers: The number of paths to consider before calculating the
+			transfer times. This is because a journey could become longer than expected due to
+			waiting for lower frequency lines. The fastest line among the initial paths is
+			returned after this is calculated
 		:param verbose_loading: Print out line conflict types when loading default graph.
 		"""
 		super().__init__()
 		self.load_default_graph(verbose=verbose_loading)
+		self.paths_before_transfers = paths_before_transfers
 	
 	def load_default_graph(self, line_folder: str = 'lines', verbose: bool = False) -> None:
 		"""
@@ -164,7 +169,6 @@ class TransitGraph(nx.Graph):
 	def fastest_paths(self,
 		source: str,
 		target: str,
-		paths_before_transfers: int,
 	) -> tuple[list[list[set[str]]], list[float], list[list[str]]]:
 		"""
 		Internal helper function called by `self.fastest_path`, see there for docs
@@ -175,7 +179,7 @@ class TransitGraph(nx.Graph):
 		# get a certain amount of journeys using only travel_time weights
 		top_paths: list[list[str]] = []
 		for index, path in enumerate(path_generator):
-			if index >= paths_before_transfers:
+			if index >= self.paths_before_transfers:
 				break
 			top_paths.append(path)
 		
@@ -229,7 +233,6 @@ class TransitGraph(nx.Graph):
 	def fastest_path(self,
 		source: str,
 		target: str,
-		paths_before_transfers: int = 10,
 		sim_mode: bool = False
 	) -> tuple[list[set[str]], float, list[str]]:
 		"""
@@ -239,10 +242,6 @@ class TransitGraph(nx.Graph):
 		
 		:param source: The source station
 		:param target: The target station
-		:param paths_before_transfers: The number of paths to consider before calculating the
-			transfer times. This is because a journey could become longer than expected due to
-			waiting for lower frequency lines. The fastest line among the initial paths is
-			returned after this is calculated
 		:param sim_mode: Internal parameter for running simulations, which skips checking
 			possible matches for missing nodes.
 		:return: A tuple of the following information:
@@ -259,8 +258,7 @@ class TransitGraph(nx.Graph):
 				find_possible_match(target, list(self.nodes))
 				return list(), float(), list()
 		
-		lines_in_paths, total_times, top_paths = \
-			self.fastest_paths(source, target, paths_before_transfers)
+		lines_in_paths, total_times, top_paths = self.fastest_paths(source, target)
 		
 		fastest_index = total_times.index(min(total_times))
 		
@@ -274,7 +272,7 @@ class TransitGraph(nx.Graph):
 		Helper function to print out results of `self.fastest_path`. The arguments are the same
 		as this function.
 		"""
-		lines, time, stations = self.fastest_path(source, target, paths_before_transfers)
+		lines, time, stations = self.fastest_path(source, target)
 		print(
 			f'\nLines used: {lines}'
 			f'\nCalculated travel time: {time}'

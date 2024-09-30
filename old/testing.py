@@ -286,6 +286,20 @@ route = net.fastest_paths(origin, target, 20)
 
 
 
-from tqdm import tqdm
 
-for i in tqdm(range(10), leave=False)
+# for report
+from TransitGraph import TransitGraph
+print(TransitGraph().minimize_changes([
+	{'10', '60'},
+	{'10', '60'},
+	{'52', '60'},
+	{'52', '60'},
+	{'6', '18'},
+	{'6', '18'},
+	{'18'},
+	{'18', '4'},
+	{'18'},
+	{'18', '1'},
+	{'18', '1'},
+	{'1'}
+]))
