@@ -86,7 +86,7 @@ class Simulator:
 		if self.disruption_ran:
 			print(
 				'Error: Disruption has already been simulated. '
-				'Reset graph before creating a new disruption.'
+				'Call `self.reset_graph()` before creating a new disruption.'
 			)
 			return
 			
@@ -195,8 +195,7 @@ class Simulator:
 		
 	def get_stats(self) -> dict:
 		"""
-		delay, delay as percent,
-		:return:
+		Calculates various statistics after simulating a disruption.
 		"""
 		if not self.disruption_ran:
 			print('Error: No simulation of disruption was found')
