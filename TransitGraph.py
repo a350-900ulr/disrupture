@@ -284,7 +284,7 @@ class TransitGraph(nx.Graph):
 		Helper function that takes all available lines for a given route & determines the ideal
 		route with the least # of transfers.
 		:param possible_lines: A list of sets showing the available lines at each station.
-		:return: A list in the same format, but only containing the ideal lines.
+		:return: A (usually shorter) list in the same format, but only containing the ideal lines.
 		"""
 		def strip_extra_lines(possible_lines_inner: list[set[str]]) -> list[set[str]]:
 			"""
