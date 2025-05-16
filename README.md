@@ -1,4 +1,7 @@
-# Disrupture
+<h1 style="text-align: center;" align="center">Disrupture</h1>
+<p style="text-align: center;" align="center">
+	Knowledge Graphs VU 192.116, 2024S, 2.0h/3.0ECTS<br>
+</p>
 
 A generalized transit planner for Vienna. Given a list of scheduled disruptions (such as station/track segment maintenance), this program will determine the optimal order of maintenance to cause the overall least disruption combined. 
 
@@ -68,7 +71,7 @@ In order to build the network each line along with their respective stations is 
 
 1. Get the names of the end stations from the Vienna transit map
 2. Input these end stations into CityMapper, choosing the route that utilizes the single desired line.
-	1. Some tram lines take somewhat windy routes as the line is not designed to be entirely used at once, meaning that when the fastest route is calculated, the tram line does not show up or is not entirely utilized. For example, tram line 5 goes from *Westbahnhof* to *Praterstern*, making a half circle around the north of the city. Any routing app will say to take the much faster U3/U1 or U3/Stammstrecke route. Fortunately, CityMapper has a “simple” option which shows routes with the least transfers. However, this option is only on mobile, so it was required that the journey be sent as a link to a laptop to be subsequently copied.
+	1. Some tram lines take somewhat windy routes as the line is not designed to be entirely used at once, meaning that when the fastest route is calculated, the tram line does not show up or is not entirely utilized. For example, tram line 5 goes from *Westbahnhof* to *Praterstern*, making a half circle around the north of the city. Any routing app would suggest the much faster U3/U1 route for example. Fortunately, CityMapper has a “simple” option which shows routes with the least transfers. However, this option is only on mobile, so it was required that the journey be sent as a link to a laptop to be subsequently copied.
 	1. Some tram lines are currently out of service during the time of this project (September 2024), making their paths not immediately accessible from routing apps. Notably during this project was the Wiedner Haupstraße route from *Kliebergasse* to *Karlsplatz* affecting lines 1, 62, & Badnerbahn. The station list for these missing portions were typed out manually.
 3. Copy the list of intermediate stations into a .txt file named the respective line.
 	1. Several tram lines have stations that are 1-way only. This was checked manually. For simplification of the project, all stations were assumed to be bi-directional.
@@ -86,7 +89,11 @@ The included lines are explicitly listed out here for convenience:
 * **Radial Trams:** 25, 26, 30, 31, 33, 37, 38, 40, 41, 42, 43, 44, 46, 49, 52, 60, 62, 71
 * **Trolleys:** Badnerbahn
 * **Metros:** U1, U2, U3, U4, U6
+<<<<<<< HEAD
+* **Commuter Lines:** S1, S2, S3, S4, S7, S40, S45, S50, S60, S80 (Lines S1-S4 along with other regional lines are often referred to as the _Stammstrecke_ or _Pink Line_)
+=======
 * **Commuter Lines:** S1, S2, S3, S4, S7, S40, S45, S50, S60, S80 (Lines S1-4 are often referred to as the _Stammstrecke_, however this term in the real world also includes regional lines REX1-3 & CJX9 which are not included as explained in the next section.)
+>>>>>>> origin/master
 
 ## 2.3. Excluded Lines
 
@@ -97,7 +104,7 @@ In spite of my burning passion to make the network as thorough as possible, not 
 * **Lilis Welt:** Although the Liliputbahn & the Donauparkbahn are more of small scale tourist attractions for parks that are not meant to be used as proper transit, they were still considered since they are rail lines that run between multiple stations at regular intervals. They were ultimately excluded since they are not part of the central tariff zone & their station names do not align with the connecting transit lines. The addition of them would be very simple, as each of the 2 lines only has a few stations.
 * **Lines to the Airport:** There are the VAL (Vienna Airport Lines) Buses & The CAT (City Airport Train) that count as transit, but these were not included as the airport is not in the central tariff zone, which disqualifies these lines since they have no other stops within Vienna.
 * **Regional Trains:** The regional services (R, REX, CJX) were heavily considered, due to their extensive service within Vienna. The identification of the lines proved to be more difficult, as the ÖBB Nahverkehr Ostregion map is hard to read & understand which lines cover which segments. Along with the fact that all regional lines share the same stretches with S-Bahn lines though skipping some stations, they were ultimately not crucial aspects of the network. These lines however can easily be added.
-* **Long Distance Trains:** These services (D, IC, EC, RJ, RJX, ICE, NJ, EN, RGJ, ICE, NT, GE, Westbahn) share many of the same difficulties as regional trains, except the information would be near impossible to accurately collect due to the numerous different operators.
+* **Long Distance Trains:** These services (D, IC, EC, RJ, RJX, ICE, NJ, EN, RGJ, ICE, NT, GE, Westbahn) share many of the same difficulties as regional trains, except the information would be extremely difficult to accurately collect due to the numerous different operators.
 
 # 3. Methodology
 
