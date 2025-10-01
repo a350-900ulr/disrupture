@@ -89,11 +89,7 @@ The included lines are explicitly listed out here for convenience:
 * **Radial Trams:** 25, 26, 30, 31, 33, 37, 38, 40, 41, 42, 43, 44, 46, 49, 52, 60, 62, 71
 * **Trolleys:** Badnerbahn
 * **Metros:** U1, U2, U3, U4, U6
-<<<<<<< HEAD
 * **Commuter Lines:** S1, S2, S3, S4, S7, S40, S45, S50, S60, S80 (Lines S1-S4 along with other regional lines are often referred to as the _Stammstrecke_ or _Pink Line_)
-=======
-* **Commuter Lines:** S1, S2, S3, S4, S7, S40, S45, S50, S60, S80 (Lines S1-4 are often referred to as the _Stammstrecke_, however this term in the real world also includes regional lines REX1-3 & CJX9 which are not included as explained in the next section.)
->>>>>>> origin/master
 
 ## 2.3. Excluded Lines
 
